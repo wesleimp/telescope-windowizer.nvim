@@ -1,10 +1,17 @@
-local Path = require("plenary.path")
-local telescope = require("telescope")
+local ok, telescope = pcall(require, "telescope")
+if not ok then
+  error(
+    "This plugin requires telescope.nvim (https://github.com/nvim-telescope/telescope.nvim)"
+  )
+  return
+end
+
 local finders = require("telescope.finders")
 local pickers = require("telescope.pickers")
 local actions = require("telescope.actions")
 local action_state = require("telescope.actions.state")
 local conf = require("telescope.config").values
+local Path = require("plenary.path")
 
 local find_cmd = ""
 
