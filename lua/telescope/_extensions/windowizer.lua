@@ -9,20 +9,28 @@ end
 local finders = require("telescope.finders")
 local pickers = require("telescope.pickers")
 local actions = require("telescope.actions")
+local make_entry = require("telescope.make_entry")
 local action_state = require("telescope.actions.state")
 local conf = require("telescope.config").values
 local Path = require("plenary.path")
 
-local find_cmd = ""
+local find_commands = {
+  find = { "find", ".", "-type", "f" },
+  fd = { "fd", "--type", "f" },
+  rg = { "rg", "--files" },
+}
+
+local defaults = {
+  find_cmd = "fd",
+}
+
+local _options = {}
 
 local M = {}
 M.windowizer = function(opts)
-  local find_commands = {
-    find = { "find", ".", "-type", "f" },
-    fd = { "fd", "--type", "f" },
-    rg = { "rg", "--files" },
-  }
+  opts = vim.tbl_deep_extend("force", defaults, _options, opts)
 
+  local find_cmd = opts.find_cmd
   if not find_commands[find_cmd] then
     error(find_cmd .. " is not supported!")
     return
@@ -33,6 +41,20 @@ M.windowizer = function(opts)
       "You don't have " .. find_cmd .. "! Install it first or use other finder."
     )
     return
+  end
+
+  -- hidden files flag
+  local hidden = _options.hidden
+  local command = find_commands[find_cmd]
+  if find_cmd == "fd" or find_cmd == "rg" then
+    if hidden then
+      table.insert(command, "--hidden")
+    end
+  elseif find_cmd == "find" then
+    if not hidden then
+      table.insert(command, { "-not", "-path", "*/.*" })
+      command = vim.tbl_flatten(command)
+    end
   end
 
   opts = opts or {}
@@ -52,16 +74,17 @@ M.windowizer = function(opts)
     return true
   end
 
+  opts.entry_maker = opts.entry_maker or make_entry.gen_from_file(opts)
   pickers.new(opts, {
     prompt_title = "Windowizer",
-    finder = finders.new_oneshot_job(find_commands[find_cmd], opts),
+    finder = finders.new_oneshot_job(command, opts),
     sorter = conf.file_sorter(opts),
   }):find()
 end
 
 return telescope.register_extension({
   setup = function(opts)
-    find_cmd = opts.find_cmd or "fd"
+    _options = opts or {}
   end,
   exports = {
     windowizer = M.windowizer,
