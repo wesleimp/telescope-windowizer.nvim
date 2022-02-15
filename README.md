@@ -27,12 +27,12 @@ require("telescope").load_extension("windowizer")
 
 ### Configuration
 
-This extension can be configured using `extensions` field inside Telescope setup function.
+This extension can be configured using `extensions` field inside Telescope setup function
 
 ```lua
 require("telescope").setup({
   extensions = {
-    media_files = {
+    windowizer = {
       find_cmd = "rg" -- find command. Available options [ find | fd | rg ] (defaults to "fd")
     }
   },
