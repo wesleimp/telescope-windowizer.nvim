@@ -2,7 +2,7 @@
 
 Create new tmux window ready for edit your selected file inside vim.
 
-`windowizer` will create a new tmux window with the selected file in a neovim instance. When you exit vim, the tmux window will be killed, returning to the previous windowizer.
+`windowizer` creates a new tmux window with the selected file in a neovim instance. When you exit vim, the tmux window will be killed, returning to the previous window.
 
 ## Installation
 
